@@ -58,9 +58,7 @@ public class ServiceClass extends IntentService {
         int numDays = 14;
 
         try {
-            // Construct the URL for the OpenWeatherMap query
-            // Possible parameters are avaiable at OWM's forecast API page, at
-            // http://openweathermap.org/API#forecast
+
             final String FORECAST_BASE_URL =
                     "http://api.openweathermap.org/data/2.5/forecast/daily?";
             final String QUERY_PARAM = "q";
@@ -95,22 +93,19 @@ public class ServiceClass extends IntentService {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
+
                 buffer.append(line + "\n");
             }
 
             if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
+
                 return;
             }
             forecastJsonStr = buffer.toString();
             getWeatherDataFromJson(forecastJsonStr, locationQuery);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
-            // If the code didn't successfully get the weather data, there's no point in attempting
-            // to parse it.
+
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
@@ -129,24 +124,12 @@ public class ServiceClass extends IntentService {
         return;
     }
 
-    /**
-     * Take the String representing the complete forecast in JSON Format and
-     * pull out the data we need to construct the Strings needed for the wireframes.
-     * <p>
-     * Fortunately parsing is easy:  constructor takes the JSON string and converts it
-     * into an Object hierarchy for us.
-     */
+
     private void getWeatherDataFromJson(String forecastJsonStr,
                                         String locationSetting)
             throws JSONException {
 
-        // Now we have a String representing the complete forecast in JSON Format.
-        // Fortunately parsing is easy:  constructor takes the JSON string and converts it
-        // into an Object hierarchy for us.
 
-        // These are the names of the JSON objects that need to be extracted.
-
-        // Location information
         final String OWM_CITY = "city";
         final String OWM_CITY_NAME = "name";
         final String OWM_COORD = "coord";
@@ -188,13 +171,7 @@ public class ServiceClass extends IntentService {
             // Insert the new weather information into the database
             Vector<ContentValues> cVVector = new Vector<ContentValues>(weatherArray.length());
 
-            // OWM returns daily forecasts based upon the local time of the city that is being
-            // asked for, which means that we need to know the GMT offset to translate this data
-            // properly.
 
-            // Since this data is also sent in-order and the first day is always the
-            // current day, we're going to take advantage of that to get a nice
-            // normalized UTC date for all of our weather.
 
             Time dayTime = new Time();
             dayTime.setToNow();
@@ -230,15 +207,12 @@ public class ServiceClass extends IntentService {
                 windSpeed = dayForecast.getDouble(OWM_WINDSPEED);
                 windDirection = dayForecast.getDouble(OWM_WIND_DIRECTION);
 
-                // Description is in a child array called "weather", which is 1 element long.
                 // That element also contains a weather code.
                 JSONObject weatherObject =
                         dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
                 description = weatherObject.getString(OWM_DESCRIPTION);
                 weatherId = weatherObject.getInt(OWM_WEATHER_ID);
 
-                // Temperatures are in a child object called "temp".  Try not to name variables
-                // "temp" when working with temperature.  It confuses everybody.
                 JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
                 high = temperatureObject.getDouble(OWM_MAX);
                 low = temperatureObject.getDouble(OWM_MIN);
@@ -275,15 +249,7 @@ public class ServiceClass extends IntentService {
         }
     }
 
-    /**
-     * Helper method to handle insertion of a new location in the weather database.
-     *
-     * @param locationSetting The location string used to request updates from the server.
-     * @param cityName        A human-readable city name, e.g "Mountain View"
-     * @param lat             the latitude of the city
-     * @param lon             the longitude of the city
-     * @return the row ID of the added location.
-     */
+
     long addLocation(String locationSetting, String cityName, double lat, double lon) {
         long locationId;
 
@@ -299,12 +265,10 @@ public class ServiceClass extends IntentService {
             int locationIdIndex = locationCursor.getColumnIndex(WeatherContract.LocationEntry._ID);
             locationId = locationCursor.getLong(locationIdIndex);
         } else {
-            // Now that the content provider is set up, inserting rows of data is pretty simple.
-            // First create a ContentValues object to hold the data you want to insert.
+
             ContentValues locationValues = new ContentValues();
 
-            // Then add the data, along with the corresponding name of the data type,
-            // so the content provider knows what kind of value is being inserted.
+
             locationValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
             locationValues.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationSetting);
             locationValues.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, lat);
@@ -316,12 +280,11 @@ public class ServiceClass extends IntentService {
                     locationValues
             );
 
-            // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
+
             locationId = ContentUris.parseId(insertedUri);
         }
 
         locationCursor.close();
-        // Wait, that worked?  Yes!
         return locationId;
     }
 

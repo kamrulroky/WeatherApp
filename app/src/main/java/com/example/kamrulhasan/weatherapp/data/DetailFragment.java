@@ -50,12 +50,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             WeatherEntry.COLUMN_WIND_SPEED,
             WeatherEntry.COLUMN_DEGREES,
             WeatherEntry.COLUMN_WEATHER_ID,
-            // This works because the WeatherProvider returns location data joined with
-            // weather data, even though they're stored in two different tables.
+
             WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING
     };
 
-    // These indices are tied to DETAIL_COLUMNS.  If DETAIL_COLUMNS changes, these
     // must change.
     public static final int COL_WEATHER_ID = 0;
     public static final int COL_WEATHER_DATE = 1;
@@ -100,16 +98,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+
         inflater.inflate(R.menu.detailfragment, menu);
 
-        // Retrieve the share menu item
+
         MenuItem menuItem = menu.findItem(R.id.action_share);
 
-        // Get the provider and hold onto it to set/change the share intent.
+
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
-        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
+
         if (mForecast != null) {
             mShareActionProvider.setShareIntent(createShareForecastIntent());
         }
@@ -137,8 +135,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             return null;
         }
 
-        // Now create and return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
+
         return new CursorLoader(
                 getActivity(),
                 intent.getData(),
@@ -154,7 +151,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (data != null && data.moveToFirst()) {
             // Read weather condition ID from cursor
             int weatherId = data.getInt(COL_WEATHER_CONDITION_ID);
-            // Use placeholder Image
+
             mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
 
             // Read date from cursor and update views for day of week and date
@@ -177,28 +174,27 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             String highString = Utility.formatTemperature(getActivity(), high, isMetric);
             mHighTempView.setText(highString);
 
-            // Read low temperature from cursor and update view
+
             double low = data.getDouble(COL_WEATHER_MIN_TEMP);
             String lowString = Utility.formatTemperature(getActivity(), low, isMetric);
             mLowTempView.setText(lowString);
 
-            // Read humidity from cursor and update view
+
             float humidity = data.getFloat(COL_WEATHER_HUMIDITY);
             mHumidityView.setText(getActivity().getString(R.string.format_humidity, humidity));
 
-            // Read wind speed and direction from cursor and update view
             float windSpeedStr = data.getFloat(COL_WEATHER_WIND_SPEED);
             float windDirStr = data.getFloat(COL_WEATHER_DEGREES);
             mWindView.setText(Utility.getFormattedWind(getActivity(), windSpeedStr, windDirStr));
 
-            // Read pressure from cursor and update view
+
             float pressure = data.getFloat(COL_WEATHER_PRESSURE);
             mPressureView.setText(getActivity().getString(R.string.format_pressure, pressure));
 
-            // We still need this for the share intent
+
             mForecast = String.format("%s - %s - %s/%s", dateText, description, high, low);
 
-            // If onCreateOptionsMenu has already happened, we need to update the share intent now.
+
             if (mShareActionProvider != null) {
                 mShareActionProvider.setShareIntent(createShareForecastIntent());
             }

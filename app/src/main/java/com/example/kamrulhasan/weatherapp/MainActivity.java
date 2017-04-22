@@ -43,12 +43,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
@@ -64,9 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private void openPreferredLocationInMap() {
         String location = Utility.getPreferredLocation(this);
 
-        // Using the URI scheme for showing a location found on a map.  This super-handy
-        // intent can is detailed in the "Common Intents" page of Android's developer site:
-        // http://developer.android.com/guide/components/intents-common.html#Maps
+
         Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
                 .appendQueryParameter("q", location)
                 .build();
@@ -85,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         String location = Utility.getPreferredLocation(this);
-        // update the location in our second pane using the fragment manager
+        // update the location in the second pane using the fragment manager
         if (location != null && !location.equals(mLocation)) {
             ForecastFragment ff = (ForecastFragment) getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
             if (null != ff) {
